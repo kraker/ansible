@@ -7,12 +7,20 @@
   tasks:
     - name: Remove pve-enterprise repo
       ansible.builtin.apt_repository:
+        # yamllint disable-line rule:line-length
         repo: deb https://enterprise.proxmox.com/debian/pve bullseye pve-enterprise
         state: absent
 
     - name: Add pve-no-subscription repo
       ansible.builtin.apt_repository:
+        # yamllint disable-line rule:line-length
         repo: deb http://download.proxmox.com/debian/pve bullseye pve-no-subscription
+        state: present
+
+    - name: Install tools
+      ansible.builtin.apt:
+        name:
+          - libguestfs-tools
         state: present
 
 - name: Install Docker
