@@ -1,0 +1,6 @@
+---
+# requirements.yml
+
+roles:
+  - name: geerlingguy.docker
+  - name: buluma.bootstrap

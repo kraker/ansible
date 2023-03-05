@@ -1,0 +1,12 @@
+---
+# Install Docker
+
+- name: Docker
+  hosts: all
+  become: true
+  vars:
+    docker_packages_state: latest
+    docker_install_compose_plugin: true
+    docker_install_compose: false
+  roles:
+    - geerlingguy.docker

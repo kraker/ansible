@@ -1,0 +1,8 @@
+---
+# hosts
+
+linuxhosts:
+  hosts:
+    # Proxmox VE
+    mars:
+      ansible_host: 192.168.0.176

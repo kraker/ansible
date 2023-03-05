@@ -1,0 +1,7 @@
+---
+# Bootstrap hosts for ansible
+
+- name: Bootstrap
+  hosts: all
+  roles:
+    - buluma.bootstrap
