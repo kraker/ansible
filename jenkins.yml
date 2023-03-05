@@ -1,0 +1,56 @@
+---
+# Setup Jenkins CI on SUSE
+
+- name: Install Jenkins
+  hosts: all
+  become: true
+  vars:
+    jenkins_package_state: latest
+    jenkins_admin_username: akraker
+    jenkins_admin_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          39363531396464343535383361333738323263313363333638623139656633336639303861356236
+          3439623634643931393332303134373634376563303338630a393964363539633839396233396635
+          39643037636331373865313634643161616634653563333432336666383936323338326438326132
+          3736353266613461320a343536356262386331663537636535383063623732363536313531636138
+          36343135646636333036643138313633636137623764323738336337396565353731
+    # Install suggested plugins
+    # https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/jenkins/install/platform-plugins.json
+    jenkins_plugins:
+      - ansicolor # Colorized console output is nice
+      - ansible # Need ansible to test ansible things
+      - cloudbees-folder
+      - antisamy-markup-formatter
+      - build-timeout
+      - credentials-binding
+      - timestamper
+      - ws-cleanup
+      - ant
+      - gradle
+      - workflow-aggregator
+      - pipeline-stage-view
+      - git
+      - ssh-slaves
+      - matrix-auth
+      - pam-auth
+      - ldap
+      - email-ext
+      - mailer
+      - github-branch-source
+      - pipeline-github-lib
+      - configuration-as-code # Configuration as Code plugin
+    jenkins_plugin_state: latest
+
+  tasks:
+    # Provision Jenkins
+    - name: Install Jenkins dependencies
+      community.general.zypper:
+        name:
+          - dejavu-fonts
+          - fontconfig
+          - java-11-openjdk
+        state: present
+
+    - name: Install Jenkins
+      ansible.builtin.include_role:
+        name: kraker.jenkins

@@ -4,3 +4,5 @@
 roles:
   - name: geerlingguy.docker
   - name: buluma.bootstrap
+collections:
+  - name: community.general
