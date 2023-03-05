@@ -1,0 +1,84 @@
+---
+# Install ansible and dependencies on SUSE
+
+- name: Install ansible
+  hosts: all
+  become: true
+  vars:
+    python3_package: python310
+    pip3_executable: /usr/bin/pip3.10
+    # To disable strict hostkey checking set this to 'true'
+    disable_hostkey_checking: false
+
+  tasks:
+    # Provision Python 3.x packages
+    - name: Install {{ python3_package }} and {{ python3_package }}-pip
+      community.general.zypper:
+        name:
+          - "{{ python3_package }}"
+          - "{{ python3_package }}-pip"
+        state: present
+
+    # Python 'setuptools' must be installed for ansible_python_version
+    # in order for pip to work.
+    - name: Install python{{ ansible_python.version.major }}-setuptools
+      community.general.zypper:
+        name: "python{{ ansible_python.version.major }}-setuptools"
+
+    - name: Setup ansible
+      environment: "{{ proxy_env | default({}) }}"
+      block:
+        - name: Install ansible
+          ansible.builtin.pip:
+            name: ansible
+            executable: "{{ pip3_executable }}"
+
+        - name: Install pip packages
+          ansible.builtin.pip:
+            name:
+              - pywinrm
+              - requests-credssp
+              - jmespath
+              - molecule
+              - molecule[docker]
+              - ansible-lint
+              - yamllint
+              - pre-commit
+              - cryptography
+            executable: "{{ pip3_executable }}"
+
+    # This allows ansible to connect to hosts via ssh without host key errors.
+    # Only set this to true on test systems. Not recommended for production use.
+    - name: Disable SSH StrictHostKeyChecking
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config
+        regexp: '^# *StrictHostKeyChecking'
+        line: 'StrictHostKeyChecking no'
+      when: disable_hostkey_checking
+
+    - name: Create /etc/ansible directory
+      ansible.builtin.file:
+        path: /etc/ansible
+        state: directory
+
+    # https://github.com/ansible/ansible/blob/devel/examples/ansible.cfg
+    - name: Initialize global ansible.cfg
+      ansible.builtin.shell:
+        cmd: ansible-config init --disabled > /etc/ansible/ansible.cfg
+
+    - name: Set ansible global configuration
+      ansible.builtin.lineinfile:
+        path: /etc/ansible/ansible.cfg
+        regexp: "{{ item.regexp_string }}"
+        line: "{{ item.line_string }}"
+      loop:
+        - regexp_string: '^;ask_vault_pass='
+          line_string: ask_vault_pass=true
+        - regexp_string: '^;display_skipped_hosts='
+          line_string: display_skipped_hosts=false
+        - regexp_string: '^;interpreter_python='
+          line_string: interpreter_python=auto_silence
+        - regexp_string: '^;pipelining='
+          line_string: pipelining=true
+        - regexp_string: '^;ansible_managed='
+          line_string: ansible_managed="Managed by NUCO with Ansible"
