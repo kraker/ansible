@@ -1,0 +1,12 @@
+---
+# .ansible-lint
+
+# profile: basic
+
+exclude_paths:
+  - roles/*
+
+warn_list:
+  - name[template]
+  - role-name[path]
+  - yaml[line-length]

@@ -14,3 +14,6 @@
       ansible.builtin.apt_repository:
         repo: deb http://download.proxmox.com/debian/pve bullseye pve-no-subscription
         state: present
+
+- name: Install Docker
+  ansible.builtin.import_playbook: docker.yml
