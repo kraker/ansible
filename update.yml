@@ -1,0 +1,30 @@
+---
+# Update SUSE hosts
+
+- name: Update
+  hosts: all
+  become: true
+  environment: "{{ proxy_env | default({}) }}"
+
+  tasks:
+    - name: Update Suse
+      when: ansible_os_family == 'Suse'
+      block:
+        - name: Refresh - Suse
+          community.general.zypper_repository:
+            repo: '*'
+            runrefresh: true
+            auto_import_keys: true
+
+        - name: Update - Suse
+          community.general.zypper:
+            name: '*'
+            state: latest
+
+    - name: Update Debian
+      when: ansible_os_family == 'Debian'
+      block:
+        - name: Full-upgrade - Debian
+          ansible.builtin.apt:
+            upgrade: full
+            update_cache: true
