@@ -33,7 +33,6 @@
       - ssh-slaves
       - matrix-auth
       - pam-auth
-      - ldap
       - email-ext
       - mailer
       - github-branch-source
@@ -54,3 +53,12 @@
     - name: Install Jenkins
       ansible.builtin.include_role:
         name: kraker.jenkins
+
+    - name: Install plugin dependencies
+      community.general.zypper:
+        name:
+          - git
+        state: present
+
+- name: Install ansible
+  ansible.builtin.import_playbook: ansible.yml
