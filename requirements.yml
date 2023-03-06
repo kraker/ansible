@@ -4,5 +4,7 @@
 roles:
   - name: geerlingguy.docker
   - name: buluma.bootstrap
+  - name: kraker.jenkins
+    src: https://github.com/kraker/ansible-role-jenkins
 collections:
   - name: community.general
