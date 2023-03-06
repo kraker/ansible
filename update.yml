@@ -21,6 +21,8 @@
             name: '*'
             state: latest
 
+        # TODO: Reboot Suse if needed to apply updates
+
     - name: Update Debian
       when: ansible_os_family == 'Debian'
       block:
