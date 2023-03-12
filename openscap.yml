@@ -1,0 +1,22 @@
+---
+# Install OpenSCAP
+
+- name: OpenSCAP
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Suse - Install openscap
+      community.general.zypper:
+        name: openscap-utils
+        state: present
+      when: ansible_os_family == "Suse"
+
+    - name: Debian - Install openscap
+      ansible.builtin.apt:
+        name: libopenscap8
+        state: present
+      when: ansible_os_family == "Debian"
+
+    # TODO: Install SCAP Security Guides
+    # https://www.open-scap.org/download/
