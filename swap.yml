@@ -1,0 +1,9 @@
+---
+# Make Swap
+
+- name: Swap
+  hosts: all
+  vars:
+    swap_file_size_mb: '2048'
+  roles:
+    - geerlingguy.swap

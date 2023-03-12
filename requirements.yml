@@ -6,5 +6,6 @@ roles:
   - name: buluma.bootstrap
   - name: kraker.jenkins
     src: https://github.com/kraker/ansible-role-jenkins
+  - name: geerlingguy.swap
 collections:
   - name: community.general
