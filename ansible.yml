@@ -65,6 +65,7 @@
     - name: Initialize global ansible.cfg
       ansible.builtin.shell:
         cmd: ansible-config init --disabled > /etc/ansible/ansible.cfg
+        creates: /etc/ansible/ansible.cfg
 
     - name: Set ansible global configuration
       ansible.builtin.lineinfile:

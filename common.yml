@@ -1,0 +1,23 @@
+---
+# Install/setup common tools and utilities
+
+- name: Common
+  hosts: all
+  become: true
+  vars:
+    common_packages:
+      - htop
+      - vim
+
+  tasks:
+    - name: Suse - Install Linux utilities
+      community.general.zypper:
+        name: "{{ common_packages }}"
+        state: present
+      when: ansible_os_family == "Suse"
+
+    - name: Debian - Install Linux utilities
+      ansible.builtin.apt:
+        name: "{{ common_packages }}"
+        state: present
+      when: ansible_os_family == "Debian"
