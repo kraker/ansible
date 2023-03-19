@@ -8,42 +8,73 @@
     common_packages:
       - htop
       - vim
-    common_sysstat: true
+      - ncdu
+      - tcpdump
+      - iotop
+      - nmap
+    common_packages_os_family:
+      Suse:
+        - bind-utils
+      RedHat:
+        - bind-utils
+      Debian:
+        - bind9-utils
+    common_services:
+      - sysstat
+    common_services_os_family:
+      Suse:
+        - acct
+      RedHat:
+        - psacct
+      Debian:
+        - acct
 
   tasks:
     - name: Suse operations
       when: ansible_os_family == "Suse"
       block:
-        - name: Suse - Install Linux utilities
+        - name: Suse - Install common Linux utilities
           community.general.zypper:
-            name: "{{ common_packages }}"
+            name: "{{ item }}"
             state: present
+          loop:
+            - "{{ common_packages }}"
+            - "{{ common_packages_os_family[ansible_os_family] }}"
 
-        - name: Suse - Install sysstat
+        - name: Suse - Install common services
           community.general.zypper:
-            name: sysstat
+            name: "{{ item }}"
             state: present
-          when: common_sysstat
-          notify: Enable sysstat
+          loop:
+            - "{{ common_services }}"
+            - "{{ common_services_os_family[ansible_os_family] }}"
+
+    # TODO: Add support for RedHat
 
     - name: Debian operations
       when: ansible_os_family == "Debian"
       block:
-        - name: Debian - Install Linux utilities
+        - name: Debian - Install common Linux utilities
           ansible.builtin.apt:
-            name: "{{ common_packages }}"
+            name: "{{ item }}"
             state: present
+          loop:
+            - "{{ common_packages }}"
+            - "{{ common_packages_os_family[ansible_os_family] }}"
 
         - name: Debian - Install sysstat
           ansible.builtin.apt:
-            name: sysstat
+            name: "{{ item }}"
             state: present
-          when: common_sysstat
-          notify: Enable sysstat
+          loop:
+            - "{{ common_services }}"
+            - "{{ common_services_os_family[ansible_os_family] }}"
 
-  handlers:
-    - name: Enable sysstat
+    - name: Enable common services
       ansible.builtin.systemd:
-        name: sysstat
+        name: "{{ item }}"
         state: started
         enabled: true
+      loop: >-
+        {{ common_services +
+        common_services_os_family[ansible_os_family] }}
