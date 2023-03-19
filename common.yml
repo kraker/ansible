@@ -5,13 +5,19 @@
   hosts: all
   become: true
   vars:
+    # https://www.cyberciti.biz/tips/top-linux-monitoring-tools.html
     common_packages:
       - htop
+      - iotop
+      - iftop
+      - nmon
+      - nmap
+      - telnet
+      - tcpdump
+      - strace
       - vim
       - ncdu
-      - tcpdump
-      - iotop
-      - nmap
+      - tree
     common_packages_os_family:
       Suse:
         - bind-utils
@@ -21,6 +27,7 @@
         - bind9-utils
     common_services:
       - sysstat
+    # https://www.cyberciti.biz/tips/howto-log-user-activity-using-process-accounting.html
     common_services_os_family:
       Suse:
         - acct
