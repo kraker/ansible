@@ -81,4 +81,6 @@
         - regexp_string: '^;pipelining='
           line_string: pipelining=true
         - regexp_string: '^;ansible_managed='
-          line_string: ansible_managed="Managed by NUCO with Ansible"
+          line_string: >-
+            ansible_managed="Managed by Alex Kraker
+            (alex@alexkraker.com) - Homelab"
