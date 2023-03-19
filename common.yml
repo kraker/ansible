@@ -62,7 +62,7 @@
             - "{{ common_packages }}"
             - "{{ common_packages_os_family[ansible_os_family] }}"
 
-        - name: Debian - Install sysstat
+        - name: Debian - Install common services
           ansible.builtin.apt:
             name: "{{ item }}"
             state: present
