@@ -3,6 +3,7 @@
 
 - name: Proxmox
   hosts: all
+  become: true
 
   tasks:
     - name: Remove pve-enterprise repo
@@ -16,6 +17,19 @@
         # yamllint disable-line rule:line-length
         repo: deb http://download.proxmox.com/debian/pve bullseye pve-no-subscription
         state: present
+
+    # https://github.com/foundObjects/pve-nag-buster/
+    - name: Get pve-nag-buster script
+      ansible.builtin.get_url:
+        # yamllint disable-line rule:line-length
+        url: https://raw.githubusercontent.com/foundObjects/pve-nag-buster/master/install.sh
+        dest: /tmp/pve-nag-buster.sh
+        mode: '0750'
+
+    - name: Run pve-nag-buster script
+      ansible.builtin.shell: /tmp/pve-nag-buster.sh
+      args:
+        executable: /bin/bash
 
     - name: Install tools
       ansible.builtin.apt:

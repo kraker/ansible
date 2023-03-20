@@ -5,7 +5,8 @@
   hosts: all
   become: true
   vars:
-    # https://www.cyberciti.biz/tips/top-linux-monitoring-tools.html
+    # Packages common to all (most) Linux distros
+    # See: https://www.cyberciti.biz/tips/top-linux-monitoring-tools.html
     common_packages:
       - htop
       - iotop
@@ -18,6 +19,8 @@
       - vim
       - ncdu
       - tree
+    # Packages common to all (most) Linux distros but that have different
+    # package names depending on which OS family it's from.
     common_packages_os_family:
       Suse:
         - bind-utils
@@ -25,9 +28,13 @@
         - bind-utils
       Debian:
         - bind9-utils
+    # Services common to all (most) Linux distros
     common_services:
       - sysstat
-    # https://www.cyberciti.biz/tips/howto-log-user-activity-using-process-accounting.html
+    # Services common to all (most) Linux distros but that have different
+    # package names depending on which OS family it's from.
+    # yamllint disable-line rule:line-length
+    # See: https://www.cyberciti.biz/tips/howto-log-user-activity-using-process-accounting.html
     common_services_os_family:
       Suse:
         - acct
