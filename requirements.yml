@@ -4,6 +4,7 @@
 roles:
   - name: geerlingguy.docker
   - name: buluma.bootstrap
+  - name: buluma.hostname
   - name: kraker.jenkins
     src: https://github.com/kraker/ansible-role-jenkins
   - name: geerlingguy.swap

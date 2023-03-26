@@ -1,0 +1,8 @@
+---
+# Set hostname
+
+- name: Hostname
+  hosts: all
+  become: true
+  roles:
+    - buluma.hostname
