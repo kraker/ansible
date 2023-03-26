@@ -24,10 +24,13 @@
     common_packages_os_family:
       Suse:
         - bind-utils
+        - openscap-utils
       RedHat:
         - bind-utils
+        - openscap-utils
       Debian:
         - bind9-utils
+        - libopenscap8
     # Services common to all (most) Linux distros
     common_services:
       - sysstat

@@ -1,0 +1,19 @@
+---
+# Onboard new hosts
+
+- name: Set hostname
+  ansible.builtin.import_playbook: playbooks/hostname.yml
+  vars:
+    hostname_reboot: false
+
+- name: Set timezone
+  ansible.builtin.import_playbook: playbooks/timezone.yml
+
+- name: Create swap
+  ansible.builtin.import_playbook: playbooks/swap.yml
+
+- name: Install common tools
+  ansible.builtin.import_playbook: playbooks/common.yml
+
+- name: Update host
+  ansible.builtin.import_playbook: playbooks/update.yml
