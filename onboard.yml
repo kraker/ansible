@@ -12,8 +12,8 @@
 - name: Create swap
   ansible.builtin.import_playbook: playbooks/swap.yml
 
-- name: Install common tools
-  ansible.builtin.import_playbook: playbooks/common.yml
-
 - name: Update host
   ansible.builtin.import_playbook: playbooks/update.yml
+
+- name: Install common tools
+  ansible.builtin.import_playbook: playbooks/common.yml

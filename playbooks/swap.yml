@@ -2,7 +2,7 @@
 # Make Swap
 
 - name: Swap
-  hosts: all
+  hosts: all:!mars
   become: true
   vars:
     swap_file_size_mb: '2048'

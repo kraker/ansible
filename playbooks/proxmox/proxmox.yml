@@ -2,7 +2,7 @@
 # Setup Proxmox VE host
 
 - name: Proxmox
-  hosts: all
+  hosts: mars
   become: true
 
   tasks:
@@ -38,4 +38,4 @@
         state: present
 
 - name: Install Docker
-  ansible.builtin.import_playbook: docker.yml
+  ansible.builtin.import_playbook: ../docker.yml

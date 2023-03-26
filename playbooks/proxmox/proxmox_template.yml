@@ -1,0 +1,97 @@
+---
+# Build Proxmox VM templates
+
+- name: Proxmox Template
+  hosts: mars
+  become: true
+  vars:
+    img_urls:
+      - https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
+      - https://cdimage.debian.org/cdimage/openstack/current-10/debian-10-openstack-amd64.qcow2
+      - https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
+      - https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
+      - https://download.opensuse.org/distribution/leap/15.4/appliances/openSUSE-Leap-15.4-Minimal-VM.x86_64-OpenStack-Cloud.qcow2
+      - https://dl.rockylinux.org/pub/rocky/8/images/x86_64/Rocky-8-GenericCloud-Base.latest.x86_64.qcow2
+      - https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
+    vmid_start_index: 9000
+
+  tasks:
+    - name: Download cloud images
+      ansible.builtin.get_url:
+        url: "{{ item }}"
+        dest: "/tmp/{{ item | basename }}"
+        owner: root
+        group: root
+        mode: '0644'
+        validate_certs: false
+      loop: "{{ img_urls }}"
+
+    # https://dev.to/mike1237/create-proxmox-cloud-init-templates-for-use-with-packer-193a
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name: libguestfs-tools
+        state: present
+
+    - name: Install qemu-guest-agent on images
+      ansible.builtin.command:
+        cmd: >-
+          virt-customize --install qemu-guest-agent
+          -a /tmp/{{ item | basename }}
+      # This command errors for SUSE images and it already has this installed so
+      # we might as well skip it.
+      when: item is not search("SUSE")
+      loop: "{{ img_urls }}"
+
+    # https://pve.proxmox.com/wiki/Cloud-Init_Support
+    - name: Create VM
+      ansible.builtin.command:
+        # yamllint disable rule:line-length
+        cmd: >-
+          qm create {{ vmid_start_index + item_no }}
+          --name {{ item | basename | regex_search('^\w+-([\d.]+|\w+-[\d.]+)') }}
+          --memory 2048
+          --net0 virtio,bridge=vmbr0
+          --scsihw virtio-scsi-pci
+        # yamllint enable rule:line-length
+      loop: "{{ img_urls }}"
+      loop_control:
+        index_var: item_no
+
+    - name: Import cloud image
+      ansible.builtin.command:
+        cmd: >-
+          qm set {{ vmid_start_index + item_no }}
+          --scsi0 local-zfs:0,import-from=/tmp/{{ item | basename }}
+      loop: "{{ img_urls }}"
+      loop_control:
+        index_var: item_no
+
+    - name: Add cloud-init CD-ROM
+      ansible.builtin.command:
+        cmd: qm set {{ vmid_start_index + item_no }} --ide2 local-zfs:cloudinit
+      loop: "{{ img_urls }}"
+      loop_control:
+        index_var: item_no
+
+    - name: Set boot from cloud image
+      ansible.builtin.command:
+        cmd: qm set {{ vmid_start_index + item_no }} --boot order=scsi0
+      loop: "{{ img_urls }}"
+      loop_control:
+        index_var: item_no
+
+    - name: Configure serial console
+      ansible.builtin.command:
+        cmd: >-
+          qm set {{ vmid_start_index + item_no }}
+          --serial0 socket --vga serial0
+      loop: "{{ img_urls }}"
+      loop_control:
+        index_var: item_no
+
+    - name: Create template
+      ansible.builtin.command:
+        cmd: qm template {{ vmid_start_index + item_no }}
+      loop: "{{ img_urls }}"
+      loop_control:
+        index_var: item_no
