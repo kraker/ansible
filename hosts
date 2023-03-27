@@ -8,5 +8,3 @@ linuxhosts:
       ansible_host: 192.168.0.176
     autobots:
       ansible_host: 192.168.0.201
-    teleport:
-      ansible_host: 192.168.0.202

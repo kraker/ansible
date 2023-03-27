@@ -1,6 +1,11 @@
 ---
 # Onboard new hosts
 
+- name: Bootstrap
+  ansible.builtin.import_playbook: playbooks/bootstrap.yml
+  vars:
+    ansible_user: root
+
 - name: Set hostname
   ansible.builtin.import_playbook: playbooks/hostname.yml
   vars:

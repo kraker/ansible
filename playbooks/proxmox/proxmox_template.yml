@@ -6,16 +6,32 @@
   become: true
   vars:
     img_urls:
-      - https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
-      - https://cdimage.debian.org/cdimage/openstack/current-10/debian-10-openstack-amd64.qcow2
+      - https://cloud.debian.org/images/cloud/buster/latest/debian-10-generic-amd64.qcow2
+      - https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-generic-amd64.qcow2
       - https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
       - https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
       - https://download.opensuse.org/distribution/leap/15.4/appliances/openSUSE-Leap-15.4-Minimal-VM.x86_64-OpenStack-Cloud.qcow2
       - https://dl.rockylinux.org/pub/rocky/8/images/x86_64/Rocky-8-GenericCloud-Base.latest.x86_64.qcow2
       - https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
     vmid_start_index: 9000
+  vars_prompt:
+    - name: destroy_templates
+      prompt: Destroy existing templates? (yes/no)
 
   tasks:
+    - name: Destroy existing templates
+      when: destroy_templates | bool
+      block:
+        - name: Destroy existing templates
+          ansible.builtin.command:
+            cmd: >-
+              qm destroy {{ vmid_start_index + item_no }}
+              --destroy-unreferenced-disks 1
+              --purge 1
+          loop: "{{ img_urls }}"
+          loop_control:
+            index_var: item_no
+
     - name: Download cloud images
       ansible.builtin.get_url:
         url: "{{ item }}"
@@ -53,6 +69,7 @@
           --net0 virtio,bridge=vmbr0
           --scsihw virtio-scsi-pci
         # yamllint enable rule:line-length
+        creates: /etc/pve/qemu-server/{{ vmid_start_index + item_no }}.conf
       loop: "{{ img_urls }}"
       loop_control:
         index_var: item_no
@@ -62,6 +79,7 @@
         cmd: >-
           qm set {{ vmid_start_index + item_no }}
           --scsi0 local-zfs:0,import-from=/tmp/{{ item | basename }}
+        creates: /dev/zvol/local-zfs/base-{{ vmid_start_index + item_no }}*
       loop: "{{ img_urls }}"
       loop_control:
         index_var: item_no
@@ -69,6 +87,8 @@
     - name: Add cloud-init CD-ROM
       ansible.builtin.command:
         cmd: qm set {{ vmid_start_index + item_no }} --ide2 local-zfs:cloudinit
+        # yamllint disable-line rule:line-length
+        creates: /dev/zvol/local-zfs/vm-{{ vmid_start_index + item_no }}-cloudinit
       loop: "{{ img_urls }}"
       loop_control:
         index_var: item_no
