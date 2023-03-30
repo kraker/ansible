@@ -1,0 +1,13 @@
+---
+# generic playbooks vars
+
+playbooks:
+  - name: playbook_1
+    hosts: webservers
+    roles:
+      - bootstrap
+  - name: playbook_2
+    hosts: dbservers
+    roles:
+      - bootstrap
+      - mysql

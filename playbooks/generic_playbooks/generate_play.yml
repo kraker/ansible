@@ -1,0 +1,25 @@
+---
+# generate_play.yml
+
+- name: Generate Play
+  hosts: localhost
+  gather_facts: false
+  vars:
+    playbooks:
+      - name: playbook_1
+        hosts: webservers
+        roles:
+          - bootstrap
+      - name: playbook_2
+        hosts: dbservers
+        roles:
+          - bootstrap
+          - mysql
+  tasks:
+    - name: Generate playbook
+      template:
+        src: play.yml.j2
+        dest: playbook.yml
+
+- name: Run playbook
+  ansible.builtin.import_playbook: playbook.yml

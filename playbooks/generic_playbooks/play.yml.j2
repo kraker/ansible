@@ -1,0 +1,12 @@
+---
+# Generic template playbook that runs other playbooks
+
+{% for playbook in playbooks %}
+- name: "{{ playbook.name }}"
+  hosts: "{{ playbook.hosts }}"
+  roles:
+{% for role in playbook.roles %}
+    - "{{ role }}"
+{% endfor %}
+
+{% endfor %}
